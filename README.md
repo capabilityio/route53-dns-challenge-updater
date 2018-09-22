@@ -29,6 +29,40 @@ npm install route53-dns-challenge-updater
 
 This module is intended to be launched as part of a CloudFormation template that sets up the required AWS permissions and infrastructure for successful invocation.
 
+### Required IAM Permissions:
+
+```yaml
+PolicyDocument:
+  Version: 2012-10-17
+  Statement:
+    - Effect: Allow
+      Action:
+        - "route53:ListHostedZones"
+        - "route53:ChangeResourceRecordSets"
+        - "route53:GetChange"
+      Resource:
+        - "*"
+```
+
+For a more restricted set, you can limit `route53:ChangeResourceRecordSets` to a specific HostedZoneId:
+
+```yaml
+PolicyDocument:
+  Version: 2012-10-17
+  Statement:
+    - Effect: Allow
+      Action:
+        - "route53:ListHostedZones"
+        - "route53:GetChange"
+      Resource:
+        - "*"
+    - Effect: Allow
+      Action:
+        - "route53:ChangeResourceRecordSets"
+      Resource:
+        - "arn:aws:route53:::hostedzone/${HostedZoneId}"
+```
+
 ## Tests
 
 ```
