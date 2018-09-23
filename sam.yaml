@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: AWS Route53 DNS challenge updater plugin for Certificate Manager Service.
+
+Resources:
+
+  ChallengeUpdater:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: !Sub "s3://${PublicLambdasBucket}/challenge-updater:public-lambda-image/${ChallengeUpdaterImage}@${ChallengeUpdaterVersion}"
+      Handler: !Ref ChallengeUpdaterHandler
+      MemorySize: !Ref ChallengeUpdaterMemorySize
+      Policies:
+        - PolicyName: certificate-manager-service-challenge-updater-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "route53:ListHostedZones"
+                  - "route53:ChangeResourceRecordSets"
+                  - "route53:GetChange"
+                Resource:
+                  - "*"
+      Runtime: !Ref ChallengeUpdaterRuntime
+      Timeout: !Ref ChallengeUpdaterTimeout
+
+Parameters:
+
+  ChallengeUpdaterHandler:
+    Type: String
+    Default: "index.handle"
+    Description: ChallengeUpdater handler function
+
+  ChallengeUpdaterImage:
+    Type: String
+    Description: ChallengeUpdater function image
+
+  ChallengeUpdaterMemorySize:
+    Type: Number
+    Default: 128
+    Description: ChallengeUpdater memory size
+
+  ChallengeUpdaterRuntime:
+    Type: String
+    Default: "nodejs8.10"
+    Description: ChallengeUpdater runtime
+
+  ChallengeUpdaterTimeout:
+    Type: Number
+    Default: 300
+    Description: ChallengeUpdater timeout in seconds
+
+  ChallengeUpdaterVersion:
+    Type: String
+    Description: ChallengeUpdater function version
+
+  PublicLambdasBucket:
+    Type: String
+    Default: "certificate-manager-service-public-lambdas"
+    Description: S3 bucket for Certificate Manager Service public lambdas
+
+Outputs:
+
+  ChallengeUpdaterArn:
+    Description: ChallengeUpdater Lambda ARN
+    Value: !GetAtt ChallengeUpdater.Arn
+
