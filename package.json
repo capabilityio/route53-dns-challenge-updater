@@ -4,7 +4,7 @@
   "description": "AWS Route53 DNS challenge updater plugin for Capability Certificate Manager Service",
   "scripts": {
     "assert-aws-lambda-node": "(node -v | grep -q ${npm_package_scriptvars_aws_lambda_node}) || (echo \"Expected node version ${npm_package_scriptvars_aws_lambda_node}, got $(node -v)\" && exit 1)",
-    "build": "npm run assert-aws-lambda-node && npm run clean && npm install --production --no-save && npm list 1>/dev/null && zip -r --exclude=*.git* --exclude=*test/* --exclude=*aws-sdk* --exclude=*test.js* --exclude=*.DS_Store ${npm_package_name}@{npm_package_version}.zip .",
+    "build": "npm run assert-aws-lambda-node && npm run clean && npm install --production --no-save && npm list 1>/dev/null && zip -r --exclude=*.git* --exclude=*test/* --exclude=*aws-sdk* --exclude=*test.js* --exclude=*.DS_Store ${npm_package_name}@${npm_package_version}.zip .",
     "clean": "rm -f ${npm_package_name}@*.zip && rm -rf node_modules && rm -f package-lock.json",
     "preinstall": "npm run assert-aws-lambda-node",
     "test": "npm run assert-aws-lambda-node && npm list 1>/dev/null && jest --env node"
