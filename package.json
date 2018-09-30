@@ -20,7 +20,7 @@
   "dependencies": {
     "capability-sdk": "0.8.1",
     "capability-uri": "0.3.0",
-    "joi": "13.6.0"
+    "joi": "13.7.0"
   },
   "contributors": [
     "Tristan Slominski <tristan.slominski@gmail.com>"
