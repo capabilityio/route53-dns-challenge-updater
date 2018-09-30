@@ -66,7 +66,7 @@ class Updater extends events.EventEmitter
         _callback = callback; // return 503 Service Unavailable on uncaught error
         if (!Updater.instance)
         {
-            const userdata = process.env.USERDATA || {}; // support empty config
+            const userdata = process.env.USERDATA || "{}"; // support empty config
             Updater.config(JSON.parse(userdata), config =>
                 {
                     Updater.instance = new Updater(config);
