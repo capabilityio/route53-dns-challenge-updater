@@ -2,7 +2,7 @@
 
 _Stability: 1 - [Experimental](https://github.com/tristanls/stability-index#stability-1---experimental)_
 
-[![NPM version](https://badge.fury.io/js/route53-dns-challenge-updater.png)](http://npmjs.org/package/route53-dns-challenge-updater)
+[![NPM version](https://badge.fury.io/js/route53-dns-challenge-updater.svg)](http://npmjs.org/package/route53-dns-challenge-updater)
 
 AWS Route53 DNS challenge updater plugin for Certificate Manager Service.
 
@@ -17,7 +17,7 @@ AWS Route53 DNS challenge updater plugin for Certificate Manager Service.
 
 ## Installation
 
-Easiest way to install and configure `route53-dns-challenge-updater` is via AWS Marketplace.
+The intended usage of `route53-dns-challenge-updater` is as part of [capability-cli](https://github.com/capabilityio/capability-cli) `certificate-manager config aws` functionality.
 
 Alternatively, to install locally:
 
@@ -27,7 +27,7 @@ npm install route53-dns-challenge-updater
 
 ## Usage
 
-This module is intended to be launched as part of a CloudFormation template that sets up the required AWS permissions and infrastructure for successful invocation.
+This module is intended to be executed as an AWS Lambda function as part of [capability-cli](https://github.com/capabilityio/capability-cli) `certificate-manager config aws` functionality that configures this module as well as grants the requisite permissions and creates required supporting infrastructure.
 
 ### Required IAM Permissions:
 
