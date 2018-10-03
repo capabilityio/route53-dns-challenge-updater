@@ -37,7 +37,6 @@ process.on("uncaughtException", error =>
 );
 
 const AWS = require("aws-sdk");
-const CapabilitySDK = require("capability-sdk");
 const events = require("events");
 const pkg = require("./package.json");
 

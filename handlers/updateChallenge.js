@@ -40,7 +40,11 @@ module.exports = function(message, context)
         );
     }
     const workflow = new events.EventEmitter();
-    setImmediate(() => workflow.emit("start", {}));
+    setImmediate(() => workflow.emit("start",
+        {
+            hostedZones: []
+        }
+    ));
     workflow.on("start", dataBag => workflow.emit("retrieve hosted zone id for domain", dataBag));
     workflow.on("retrieve hosted zone id for domain", dataBag =>
         {
@@ -55,14 +59,15 @@ module.exports = function(message, context)
                     {
                         return self._end(self.SERVICE_UNAVAILABLE);
                     }
-                    const hostedZone = resp.HostedZones
-                        .filter(zone => zone.Name === `${message.domain}.`);
-                    if (hostedZone.length == 0 && resp.IsTruncated)
+                    dataBag.hostedZones = dataBag.hostedZones.concat(
+                        resp.HostedZones.filter(zone => `${message.domain}.`.endsWith(zone.Name))
+                    );
+                    if (resp.IsTruncated)
                     {
                         dataBag.nextMarker = resp.NextMarker;
                         return workflow.emit("retrieve hosted zone id for domain", dataBag);
                     }
-                    else if (hostedZone.length == 0)
+                    if (dataBag.hostedZones.length == 0)
                     {
                         return self._end(
                             {
@@ -72,7 +77,13 @@ module.exports = function(message, context)
                             }
                         );
                     }
-                    dataBag.hostedZoneId = hostedZone[0].Id.match(/\/hostedzone\/(.*)$/)[1];
+                    dataBag.hostedZones = dataBag.hostedZones.map(zone => Object.assign(zone,
+                        {
+                            Name: zone.Name.split(".")
+                        }
+                    ));
+                    dataBag.hostedZones.sort((a, b) => b.Name.length - a.Name.length) // longest first
+                    dataBag.hostedZoneId = dataBag.hostedZones[0].Id.match(/\/hostedzone\/(.*)$/)[1];
                     return workflow.emit("create DNS TXT record", dataBag);
                 }
             );
