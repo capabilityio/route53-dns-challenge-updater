@@ -14,13 +14,19 @@
   },
   "devDependencies": {
     "capability-token": "0.4.0",
-    "clone": "2.1.2",
     "jest": "23.6.0"
   },
   "dependencies": {
     "capability-sdk": "0.8.1",
     "capability-uri": "0.3.0",
-    "joi": "13.7.0"
+    "clone": "2.1.2",
+    "joi": "13.7.0",
+    "mark-time": "1.0.0",
+    "telemetry-events": "1.1.1",
+    "telemetry-events-instrument-method": "0.3.1",
+    "telemetry-events-log": "2.0.0",
+    "telemetry-events-quantify": "1.0.0",
+    "telemetry-events-trace": "0.2.0"
   },
   "contributors": [
     "Tristan Slominski <tristan.slominski@gmail.com>"

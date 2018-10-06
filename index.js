@@ -37,8 +37,16 @@ process.on("uncaughtException", error =>
 );
 
 const AWS = require("aws-sdk");
+const clone = require("clone");
 const events = require("events");
+const instrument = require("telemetry-events-instrument-method");
+const Joi = require("joi");
+const LogTelemetryEvents = require("telemetry-events-log");
+const markTime = require("mark-time");
 const pkg = require("./package.json");
+const QuantifyTelemetryEvents = require("telemetry-events-quantify");
+const TelemetryEvents = require("telemetry-events");
+const TraceTelemetryEvents = require("telemetry-events-trace");
 
 class Updater extends events.EventEmitter
 {
@@ -48,15 +56,94 @@ class Updater extends events.EventEmitter
 
         const self = this;
         self.SERVICE_UNAVAILABLE = SERVICE_UNAVAILABLE;
-        self._config = config;
         self.name = pkg.name;
         self.version = pkg.version;
 
+        self._config = config;
+
+        const configValidationResult = Joi.validate(
+            self._config,
+            Updater.SCHEMA.config.instantiated,
+            {
+                abortEarly: false,
+                convert: false
+            }
+        );
+        if (configValidationResult.error)
+        {
+            throw configValidationResult.error;
+        }
+
         self._route53 = new AWS.Route53();
+        self._stderrTelemetry = self._config.stderrTelemetry ? true : false;
+
+        self._telemetry = new TelemetryEvents(
+            {
+                package: pkg,
+                emitter: self
+            }
+        );
+        self._logs = new LogTelemetryEvents(
+            {
+                telemetry: self._telemetry
+            }
+        );
+        self._log = self._logs.log;
+        self._metrics = new QuantifyTelemetryEvents(
+            {
+                telemetry: self._telemetry
+            }
+        );
+        self._tracing = new TraceTelemetryEvents(
+            {
+                telemetry: self._telemetry
+            }
+        );
+        if (self._stderrTelemetry)
+        {
+            self.on("telemetry", event =>
+                {
+                    try
+                    {
+                        // clone handles circular dependencies
+                        console.error(JSON.stringify(clone(event)));
+                    }
+                    catch (error)
+                    {
+                        console.error(`{"type":"log","level":"error","message":"Failed to write telemetry with type ${event.type}"}`);
+                        console.error(error);
+                        console.error(event);
+                    }
+                }
+            );
+        }
+
+        self._instrument = params => instrument(
+            {
+                ...params,
+                telemetry:
+                {
+                    logs: self._logs,
+                    metrics: self._metrics
+                }
+            }
+        );
     }
 
     static config(config, callback)
     {
+        const configValidationResult = Joi.validate(
+            config,
+            Updater.SCHEMA.config.uninstantiated,
+            {
+                abortEarly: false,
+                convert: false
+            }
+        );
+        if (configValidationResult.error)
+        {
+            throw configValidationResult.error;
+        }
         return callback(config);
     }
 
@@ -83,6 +170,26 @@ class Updater extends events.EventEmitter
     {
         _callback = callback; // testing artifact
         const self = this;
+        self._startTime = markTime();
+        self._requestId = context.awsRequestId;
+        self._metadata =
+        {
+            action: "UpdateChallenge"
+        };
+        if (message.context && message.context.parentSpan)
+        {
+            const incomingTrace = self._tracing.extract("text_map", message.context.parentSpan);
+            if (incomingTrace)
+            {
+                self._parentSpan = incomingTrace.followingSpan("updateChallenge");
+            }
+        }
+        if (!self._parentSpan)
+        {
+            self._parentSpan = self._tracing.trace("updateChallenge");
+        }
+        self._parentSpan.tag("requestId", self._requestId);
+
         if (context.testAbort)
         {
             return self._end(SERVICE_UNAVAILABLE);
@@ -93,6 +200,18 @@ class Updater extends events.EventEmitter
     _end(error, response)
     {
         const self = this;
+        self._metrics.gauge("latency",
+            {
+                unit: "ms",
+                value: markTime() - self._startTime,
+                metadata: self._metadata
+            }
+        );
+        if (self._parentSpan)
+        {
+            self._parentSpan.finish();
+            self._parentSpan = undefined;
+        }
         setImmediate(_ => self.emit("end"));
         // Non-crash errors are treated as successful Lambda executions and
         // passed in place of a response.
@@ -100,6 +219,14 @@ class Updater extends events.EventEmitter
     }
 };
 
+Updater.SCHEMA =
+{
+    config:
+    {
+        instantiated: require("./schema/config/instantiated.js"),
+        uninstantiated: require("./schema/config/uninstantiated.js")
+    }
+};
 Updater.SERVICE_UNAVAILABLE = SERVICE_UNAVAILABLE;
 Updater.instance = undefined;
 Updater.version = pkg.version;

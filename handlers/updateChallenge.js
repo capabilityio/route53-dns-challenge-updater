@@ -15,6 +15,7 @@
  */
 "use strict";
 
+const AWS = require("aws-sdk");
 const CapabilitySDK = require("capability-sdk");
 const events = require("events");
 const Joi = require("joi");
@@ -31,6 +32,12 @@ module.exports = function(message, context)
     );
     if (validationResult.error)
     {
+        self._log("error",
+            {
+                error: `Invalid ${validationResult.error.details[0].path.join(".")}`,
+                message: `Invalid message`
+            }
+        );
         return self._end(
             {
                 statusCode: 400,
@@ -53,10 +60,39 @@ module.exports = function(message, context)
                     Marker: dataBag.nextMarker
                 }
             );
-            self._route53.listHostedZones(params, (error, resp) =>
+            self._instrument(
+                {
+                    target: self._route53,
+                    method: "listHostedZones",
+                    noContext: true
+                }
+            )(
+                {
+                    args:
+                    [
+                        params
+                    ],
+                    argsToLog:
+                    [
+                        params
+                    ],
+                    metadata: self._metadata,
+                    parentSpan: self._parentSpan,
+                    targetMetadata:
+                    {
+                        module: "aws-sdk",
+                        version: AWS.VERSION
+                    }
+                },
+                (error, resp) =>
                 {
                     if (error)
                     {
+                        self._log("error",
+                            {
+                                error
+                            }
+                        );
                         return self._end(self.SERVICE_UNAVAILABLE);
                     }
                     dataBag.hostedZones = dataBag.hostedZones.concat(
@@ -69,6 +105,14 @@ module.exports = function(message, context)
                     }
                     if (dataBag.hostedZones.length == 0)
                     {
+                        self._log("error", "Not Found", self._metadata,
+                            {
+                                target:
+                                {
+                                    domain: message.domain
+                                }
+                            }
+                        );
                         return self._end(
                             {
                                 statusCode: 404,
@@ -116,10 +160,39 @@ module.exports = function(message, context)
                 },
                 HostedZoneId: dataBag.hostedZoneId
             };
-            self._route53.changeResourceRecordSets(params, (error, resp) =>
+            self._instrument(
+                {
+                    target: self._route53,
+                    method: "changeResourceRecordSets",
+                    noContext: true
+                }
+            )(
+                {
+                    args:
+                    [
+                        params
+                    ],
+                    argsToLog:
+                    [
+                        params
+                    ],
+                    metadata: self._metadata,
+                    parentSpan: self._parentSpan,
+                    targetMetadata:
+                    {
+                        module: "aws-sdk",
+                        version: AWS.VERSION
+                    }
+                },
+                (error, resp) =>
                 {
                     if (error)
                     {
+                        self._log("error",
+                            {
+                                error
+                            }
+                        );
                         return self._end(self.SERVICE_UNAVAILABLE);
                     }
                     dataBag.changeId = resp.ChangeInfo.Id;
@@ -134,10 +207,39 @@ module.exports = function(message, context)
             {
                 Id: dataBag.changeId
             };
-            self._route53.getChange(params, (error, resp) =>
+            self._instrument(
+                {
+                    target: self._route53,
+                    method: "getChange",
+                    noContext: true
+                }
+            )(
+                {
+                    args:
+                    [
+                        params
+                    ],
+                    argsToLog:
+                    [
+                        params
+                    ],
+                    metadata: self._metadata,
+                    parentSpan: self._parentSpan,
+                    targetMetadata:
+                    {
+                        module: "aws-sdk",
+                        version: AWS.VERSION
+                    }
+                },
+                (error, resp) =>
                 {
                     if (error)
                     {
+                        self._log("error",
+                            {
+                                error
+                            }
+                        );
                         return self._end(self.SERVICE_UNAVAILABLE);
                     }
                     if (resp.ChangeInfo.Status != "INSYNC")
@@ -154,14 +256,43 @@ module.exports = function(message, context)
     );
     workflow.on("notify challenge updated", dataBag =>
         {
-            CapabilitySDK.requestReply(
-                message.capabilities.challengeUpdated,
-                undefined,
-                undefined,
+            self._instrument(
+                {
+                    target: CapabilitySDK,
+                    method: "requestReply",
+                    noContext: true
+                }
+            )(
+                {
+                    args:
+                    [
+                        message.capabilities.challengeUpdated,
+                        undefined,
+                        undefined
+                    ],
+                    argsToLog:
+                    [
+                        "*redacted*",
+                        undefined,
+                        undefined
+                    ],
+                    metadata: self._metadata,
+                    parentSpan: self._parentSpan,
+                    targetMetadata:
+                    {
+                        module: "capability-sdk",
+                        version: CapabilitySDK.version
+                    }
+                },
                 (error, resp) =>
                 {
                     if (error)
                     {
+                        self._log("error",
+                            {
+                                error
+                            }
+                        );
                         return self._end(self.SERVICE_UNAVAILABLE);
                     }
                     return self._end();
