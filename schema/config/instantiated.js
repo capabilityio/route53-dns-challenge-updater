@@ -15,7 +15,7 @@
  */
 "use strict";
 
-const Joi = require("Joi");
+const Joi = require("../joi.js");
 
 module.exports = Joi.object().keys(
     {

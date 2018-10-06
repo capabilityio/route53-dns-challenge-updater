@@ -224,8 +224,8 @@ Updater.SCHEMA =
 {
     config:
     {
-        instantiated: require(path.normalize(path.join(__dirname, "schema/config/instantiated.js"))),
-        uninstantiated: require(path.normalize(path.join(__dirname, "schema/config/uninstantiated.js")))
+        instantiated: require("./schema/config/instantiated.js"),
+        uninstantiated: require("./schema/config/uninstantiated.js")
     }
 };
 Updater.SERVICE_UNAVAILABLE = SERVICE_UNAVAILABLE;
