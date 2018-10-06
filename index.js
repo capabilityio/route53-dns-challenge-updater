@@ -43,6 +43,7 @@ const instrument = require("telemetry-events-instrument-method");
 const Joi = require("joi");
 const LogTelemetryEvents = require("telemetry-events-log");
 const markTime = require("mark-time");
+const path = require("path");
 const pkg = require("./package.json");
 const QuantifyTelemetryEvents = require("telemetry-events-quantify");
 const TelemetryEvents = require("telemetry-events");
@@ -223,8 +224,8 @@ Updater.SCHEMA =
 {
     config:
     {
-        instantiated: require("./schema/config/instantiated.js"),
-        uninstantiated: require("./schema/config/uninstantiated.js")
+        instantiated: require(path.normalize(path.join(__dirname, "schema/config/instantiated.js"))),
+        uninstantiated: require(path.normalize(path.join(__dirname, "schema/config/uninstantiated.js")))
     }
 };
 Updater.SERVICE_UNAVAILABLE = SERVICE_UNAVAILABLE;
