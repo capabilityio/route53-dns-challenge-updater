@@ -17,6 +17,7 @@
 
 const AWS = require("aws-sdk");
 const CapabilitySDK = require("capability-sdk");
+const CapabilityURI = require("capability-uri");
 const events = require("events");
 const Joi = require("joi");
 const schema = require("../schema/updateChallenge.js");
@@ -256,6 +257,11 @@ module.exports = function(message, context)
     );
     workflow.on("notify challenge updated", dataBag =>
         {
+            const authority = CapabilityURI.parse(message.capabilities.challengeUpdated).authority;
+            const options =
+            {
+                ca: self._tls.trustedCA[authority]
+            };
             self._instrument(
                 {
                     target: CapabilitySDK,
@@ -267,13 +273,13 @@ module.exports = function(message, context)
                     args:
                     [
                         message.capabilities.challengeUpdated,
-                        undefined,
+                        options,
                         undefined
                     ],
                     argsToLog:
                     [
                         "*redacted*",
-                        undefined,
+                        options,
                         undefined
                     ],
                     metadata: self._metadata,

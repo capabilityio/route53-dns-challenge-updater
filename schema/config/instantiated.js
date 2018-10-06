@@ -19,6 +19,18 @@ const Joi = require("../joi.js");
 
 module.exports = Joi.object().keys(
     {
-        stderrTelemetry: Joi.bool()
+        stderrTelemetry: Joi.bool(),
+        tls: Joi.object().keys(
+            {
+                trustedCA: Joi.array().items(
+                    Joi.object().keys(
+                        {
+                            authority: Joi.string().required(),
+                            ca: Joi.string().required()
+                        }
+                    )
+                )
+            }
+        )
     }
 ).required();

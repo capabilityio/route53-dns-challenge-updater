@@ -627,7 +627,11 @@ describe("UpdateChallenge", () =>
                         requestReply(capability, options, data, callback)
                         {
                             expect(capability).toEqual(mock.UPDATE_CHALLENGE.capabilities.challengeUpdated);
-                            expect(options).toBe(undefined);
+                            expect(options).toEqual(
+                                {
+                                    ca: undefined
+                                }
+                            );
                             expect(data).toBe(undefined);
                             mock.finish();
                             return callback(new Error("boom"));
@@ -711,7 +715,11 @@ describe("UpdateChallenge", () =>
                         requestReply(capability, options, data, callback)
                         {
                             expect(capability).toEqual(mock.UPDATE_CHALLENGE.capabilities.challengeUpdated);
-                            expect(options).toBe(undefined);
+                            expect(options).toEqual(
+                                {
+                                    ca: undefined
+                                }
+                            );
                             expect(data).toBe(undefined);
                             mock.finish();
                             return callback(undefined,
