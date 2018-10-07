@@ -77,23 +77,10 @@ class Updater extends events.EventEmitter
 
         self._route53 = new AWS.Route53();
         self._stderrTelemetry = self._config.stderrTelemetry ? true : false;
-        self._tls =
+        self._tls = self._config.tls ||
         {
             trustedCA: {}
         };
-        if (self._config.tls && self._config.tls.trustedCA)
-        {
-            self._tls =
-            {
-                trustedCA: self._config.tls.trustedCA.reduce((map, c) =>
-                    {
-                        map[c.authority] = c.ca;
-                        return map;
-                    },
-                    {}
-                )
-            }
-        }
 
         self._telemetry = new TelemetryEvents(
             {
