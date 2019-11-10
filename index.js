@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Capability LLC. All Rights Reserved.
+ * Copyright 2018-2019 Capability LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ const AWS = require("aws-sdk");
 const clone = require("clone");
 const events = require("events");
 const instrument = require("telemetry-events-instrument-method");
-const Joi = require("joi");
 const LogTelemetryEvents = require("telemetry-events-log");
 const markTime = require("mark-time");
 const path = require("path");
@@ -62,9 +61,8 @@ class Updater extends events.EventEmitter
 
         self._config = config;
 
-        const configValidationResult = Joi.validate(
+        const configValidationResult = Updater.SCHEMA.config.instantiated.validate(
             self._config,
-            Updater.SCHEMA.config.instantiated,
             {
                 abortEarly: false,
                 convert: false
@@ -137,9 +135,8 @@ class Updater extends events.EventEmitter
 
     static config(config, callback)
     {
-        const configValidationResult = Joi.validate(
+        const configValidationResult = Updater.SCHEMA.config.uninstantiated.validate(
             config,
-            Updater.SCHEMA.config.uninstantiated,
             {
                 abortEarly: false,
                 convert: false

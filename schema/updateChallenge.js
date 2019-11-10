@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Capability LLC. All Rights Reserved.
+ * Copyright 2018-2019 Capability LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ module.exports = joi.object().keys(
     {
         capabilities: joi.object().keys(
             {
-                challengeUpdated: joi.string().capabilityURI().required()
+                challengeUpdated: joi.capabilityURI().required()
             }
         ).required(),
         challenge: joi.string().max(256).required(),

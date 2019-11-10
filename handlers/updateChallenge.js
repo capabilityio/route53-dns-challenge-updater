@@ -19,13 +19,12 @@ const AWS = require("aws-sdk");
 const CapabilitySDK = require("capability-sdk");
 const CapabilityURI = require("capability-uri");
 const events = require("events");
-const Joi = require("joi");
 const schema = require("../schema/updateChallenge.js");
 
 module.exports = function(message, context)
 {
     const self = this;
-    const validationResult = Joi.validate(message, schema,
+    const validationResult = schema.validate(message,
         {
             abortEarly: true,
             convert: true

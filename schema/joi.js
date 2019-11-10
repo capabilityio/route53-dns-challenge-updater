@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Capability LLC. All Rights Reserved.
+ * Copyright 2018-2019 Capability LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,41 +16,30 @@
 "use strict";
 
 const CapabilityURI = require("capability-uri");
-const Joi = require("joi");
+const Joi = require("@hapi/joi");
 
 module.exports = Joi.extend(
-    [
-        joi => (
+    joi => (
+        {
+            type: "capabilityURI",
+            base: joi.string(),
+            messages:
             {
-                name: "string",
-                base: joi.string(),
-                language:
+                "capabilityURI": "needs to be a CapabilityURI"
+            },
+            validate(value, helpers)
+            {
+                const match = CapabilityURI.parse(value);
+                if (!match)
                 {
-                    capabilityURI: "needs to be a CapabilityURI"
-                },
-                rules:
-                [
-                    {
-                        name: "capabilityURI",
-                        validate(params, value, state, options)
+                    return (
                         {
-                            const match = CapabilityURI.parse(value);
-                            if (!match)
-                            {
-                                return this.createError(
-                                    "string.capabilityURI",
-                                    {
-                                        v: value
-                                    },
-                                    state,
-                                    options
-                                );
-                            }
-                            return value;
+                            value,
+                            errors: helpers.error("capabilityURI")
                         }
-                    }
-                ]
+                    );
+                }
             }
-        )
-    ]
+        }
+    )
 );

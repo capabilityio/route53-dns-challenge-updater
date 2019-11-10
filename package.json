@@ -10,23 +10,23 @@
     "test": "npm run assert-aws-lambda-node && npm list 1>/dev/null && jest --env node"
   },
   "scriptvars": {
-    "aws_lambda_node": "v8.10"
+    "aws_lambda_node": "v10"
   },
   "devDependencies": {
-    "capability-token": "0.4.0",
-    "jest": "23.6.0"
+    "capability-token": "0.4.1",
+    "jest": "24.9.0"
   },
   "dependencies": {
-    "capability-sdk": "0.8.1",
-    "capability-uri": "0.3.0",
+    "capability-sdk": "0.10.1",
+    "capability-uri": "0.3.1",
     "clone": "2.1.2",
-    "joi": "13.7.0",
+    "@hapi/joi": "16.1.7",
     "mark-time": "1.0.0",
-    "telemetry-events": "1.1.1",
-    "telemetry-events-instrument-method": "0.3.1",
-    "telemetry-events-log": "2.0.0",
-    "telemetry-events-quantify": "1.0.0",
-    "telemetry-events-trace": "0.2.0"
+    "telemetry-events": "2.0.0",
+    "telemetry-events-instrument-method": "0.4.1",
+    "telemetry-events-log": "3.0.1",
+    "telemetry-events-quantify": "2.0.0",
+    "telemetry-events-trace": "0.2.1"
   },
   "contributors": [
     "Tristan Slominski <tristan.slominski@gmail.com>"
