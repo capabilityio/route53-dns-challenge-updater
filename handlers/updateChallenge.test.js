@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Capability LLC. All Rights Reserved.
+ * Copyright 2018-2020 Capability LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ const CapabilityToken = require("capability-token");
 const CapabilityURI = require("capability-uri");
 const clone = require("clone");
 const countdown = require("../test/countdown.js");
+const errors = require("../errors");
 
 const Updater = require("../index.js");
 
@@ -143,7 +144,7 @@ describe("UpdateChallenge", () =>
                     (error, resp) =>
                     {
                         expect(error).toBe(undefined);
-                        expect(resp).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
                         finish();
                     }
                 );
@@ -297,7 +298,7 @@ describe("UpdateChallenge", () =>
                     (error, resp) =>
                     {
                         expect(error).toBe(undefined);
-                        expect(resp).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
                         finish();
                     }
                 );
@@ -381,7 +382,7 @@ describe("UpdateChallenge", () =>
                     (error, resp) =>
                     {
                         expect(error).toBe(undefined);
-                        expect(resp).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
                         finish();
                     }
                 );
@@ -471,7 +472,7 @@ describe("UpdateChallenge", () =>
                     (error, resp) =>
                     {
                         expect(error).toBe(undefined);
-                        expect(resp).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
                         finish();
                     }
                 );
@@ -553,7 +554,7 @@ describe("UpdateChallenge", () =>
                     (error, resp) =>
                     {
                         expect(error).toBe(undefined);
-                        expect(resp).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
                         finish();
                     }
                 );
@@ -645,7 +646,7 @@ describe("UpdateChallenge", () =>
                     (error, resp) =>
                     {
                         expect(error).toBe(undefined);
-                        expect(resp).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
                         finish();
                     }
                 );

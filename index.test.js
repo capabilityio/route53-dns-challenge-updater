@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Capability LLC. All Rights Reserved.
+ * Copyright 2018-2020 Capability LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 "use strict";
 
+const errors = require("./errors");
 const expectFail = require("./test/expectFail.js");
 
 const Updater = require("./index.js");
@@ -42,7 +43,7 @@ it(`should instantiate on static "handle()" call`, done =>
                     {
                         delete process.env.USERDATA;
                         expect(error).toBe(undefined);
-                        expect(response).toEqual(Updater.SERVICE_UNAVAILABLE);
+                        expect(response).toEqual(new errors.ServiceUnavailable());
                         done();
                     }
                 );

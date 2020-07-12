@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Capability LLC. All Rights Reserved.
+ * Copyright 2018-2020 Capability LLC. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 const AWS = require("aws-sdk");
 const CapabilitySDK = require("capability-sdk");
 const CapabilityURI = require("capability-uri");
+const errors = require("../errors");
 const events = require("events");
 const schema = require("../schema/updateChallenge.js");
 
@@ -93,7 +94,7 @@ module.exports = function(message, context)
                                 error
                             }
                         );
-                        return self._end(self.SERVICE_UNAVAILABLE);
+                        return self._end(new errors.ServiceUnavailable());
                     }
                     dataBag.hostedZones = dataBag.hostedZones.concat(
                         resp.HostedZones.filter(zone => `${message.domain}.`.endsWith(zone.Name))
@@ -193,7 +194,7 @@ module.exports = function(message, context)
                                 error
                             }
                         );
-                        return self._end(self.SERVICE_UNAVAILABLE);
+                        return self._end(new errors.ServiceUnavailable());
                     }
                     dataBag.changeId = resp.ChangeInfo.Id;
                     return workflow.emit("wait for Route53 change to sync", dataBag);
@@ -240,7 +241,7 @@ module.exports = function(message, context)
                                 error
                             }
                         );
-                        return self._end(self.SERVICE_UNAVAILABLE);
+                        return self._end(new errors.ServiceUnavailable());
                     }
                     if (resp.ChangeInfo.Status != "INSYNC")
                     {
@@ -298,7 +299,7 @@ module.exports = function(message, context)
                                 error
                             }
                         );
-                        return self._end(self.SERVICE_UNAVAILABLE);
+                        return self._end(new errors.ServiceUnavailable());
                     }
                     return self._end();
                 }
