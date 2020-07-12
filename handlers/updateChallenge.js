@@ -124,6 +124,10 @@ module.exports = function(message, context)
     );
     workflow.on("create DNS TXT record", dataBag =>
         {
+            if (message.domain.startsWith("*."))
+            {
+                message.domain = message.domain.slice(2);
+            }
             const params =
             {
                 ChangeBatch:

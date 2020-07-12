@@ -43,6 +43,8 @@ const UPDATE_CHALLENGE =
     challenge: "some-challenge",
     domain: "my.domain.at.example.com"
 };
+const WILDCARD_DOMAIN = `*.${ROOT_DOMAIN}`;
+const WILDCARD_SUBDOMAIN = `*.${SUBDOMAIN}`;
 
 describe("UpdateChallenge", () =>
 {
@@ -297,6 +299,90 @@ describe("UpdateChallenge", () =>
             }
         );
     });
+    describe("creates DNS TXT record for wildcard root domain", () =>
+    {
+        it("if error, returns 503 Service Unavailable", done =>
+            {
+                const finish = countdown(done, 2);
+                const message = clone(UPDATE_CHALLENGE);
+                message.domain = WILDCARD_DOMAIN;
+                const mock =
+                {
+                    finish,
+                    message,
+                    ROOT_DOMAIN,
+                    ROOT_HOSTED_ZONE_ID
+                };
+                jest.mock("aws-sdk", () => (
+                    {
+                        Route53: function()
+                        {
+                            return (
+                                {
+                                    changeResourceRecordSets(params, callback)
+                                    {
+                                        expect(params).toEqual(
+                                            {
+                                                ChangeBatch:
+                                                {
+                                                    Changes:
+                                                    [
+                                                        {
+                                                            Action: "UPSERT",
+                                                            ResourceRecordSet:
+                                                            {
+                                                                Name: `_acme-challenge.${mock.ROOT_DOMAIN}.`,
+                                                                ResourceRecords:
+                                                                [
+                                                                    {
+                                                                        Value: `"${mock.message.challenge}"`
+                                                                    }
+                                                                ],
+                                                                TTL: 5,
+                                                                Type: "TXT"
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: mock.ROOT_HOSTED_ZONE_ID
+                                            }
+                                        );
+                                        mock.finish()
+                                        return callback(new Error("boom"));
+                                    },
+                                    listHostedZones(params, callback)
+                                    {
+                                        return callback(undefined,
+                                            {
+                                                HostedZones:
+                                                [
+                                                    {
+                                                        Id: `/hostedzone/${mock.ROOT_HOSTED_ZONE_ID}`,
+                                                        Name: `${mock.ROOT_DOMAIN}.`
+                                                    }
+                                                ]
+                                            }
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    }
+                ));
+                const lambda = new (require("../index.js"))(config);
+                lambda.handle(
+                    clone(message),
+                    {},
+                    (error, resp) =>
+                    {
+                        expect(error).toBe(undefined);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
+                        finish();
+                    }
+                );
+            }
+        );
+    });
     describe("creates DNS TXT record for subdomain in root domain", () =>
     {
         it("if error, returns 503 Service Unavailable", done =>
@@ -330,6 +416,91 @@ describe("UpdateChallenge", () =>
                                                             ResourceRecordSet:
                                                             {
                                                                 Name: `_acme-challenge.${mock.message.domain}.`,
+                                                                ResourceRecords:
+                                                                [
+                                                                    {
+                                                                        Value: `"${mock.message.challenge}"`
+                                                                    }
+                                                                ],
+                                                                TTL: 5,
+                                                                Type: "TXT"
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: mock.ROOT_HOSTED_ZONE_ID
+                                            }
+                                        );
+                                        mock.finish()
+                                        return callback(new Error("boom"));
+                                    },
+                                    listHostedZones(params, callback)
+                                    {
+                                        return callback(undefined,
+                                            {
+                                                HostedZones:
+                                                [
+                                                    {
+                                                        Id: `/hostedzone/${mock.ROOT_HOSTED_ZONE_ID}`,
+                                                        Name: `${mock.ROOT_DOMAIN}.`
+                                                    }
+                                                ]
+                                            }
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    }
+                ));
+                const lambda = new (require("../index.js"))(config);
+                lambda.handle(
+                    clone(message),
+                    {},
+                    (error, resp) =>
+                    {
+                        expect(error).toBe(undefined);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
+                        finish();
+                    }
+                );
+            }
+        );
+    });
+    describe("creates DNS TXT record for wildcard subdomain in root domain", () =>
+    {
+        it("if error, returns 503 Service Unavailable", done =>
+            {
+                const finish = countdown(done, 2);
+                const message = clone(UPDATE_CHALLENGE);
+                message.domain = WILDCARD_SUBDOMAIN;
+                const mock =
+                {
+                    finish,
+                    message,
+                    ROOT_DOMAIN,
+                    ROOT_HOSTED_ZONE_ID,
+                    SUBDOMAIN
+                };
+                jest.mock("aws-sdk", () => (
+                    {
+                        Route53: function()
+                        {
+                            return (
+                                {
+                                    changeResourceRecordSets(params, callback)
+                                    {
+                                        expect(params).toEqual(
+                                            {
+                                                ChangeBatch:
+                                                {
+                                                    Changes:
+                                                    [
+                                                        {
+                                                            Action: "UPSERT",
+                                                            ResourceRecordSet:
+                                                            {
+                                                                Name: `_acme-challenge.${mock.SUBDOMAIN}.`,
                                                                 ResourceRecords:
                                                                 [
                                                                     {
@@ -416,6 +587,96 @@ describe("UpdateChallenge", () =>
                                                             ResourceRecordSet:
                                                             {
                                                                 Name: `_acme-challenge.${mock.message.domain}.`,
+                                                                ResourceRecords:
+                                                                [
+                                                                    {
+                                                                        Value: `"${mock.message.challenge}"`
+                                                                    }
+                                                                ],
+                                                                TTL: 5,
+                                                                Type: "TXT"
+                                                            }
+                                                        }
+                                                    ]
+                                                },
+                                                HostedZoneId: mock.SUBDOMAIN_HOSTED_ZONE_ID
+                                            }
+                                        );
+                                        mock.finish()
+                                        return callback(new Error("boom"));
+                                    },
+                                    listHostedZones(params, callback)
+                                    {
+                                        return callback(undefined,
+                                            {
+                                                HostedZones:
+                                                [
+                                                    {
+                                                        Id: `/hostedzone/${mock.ROOT_HOSTED_ZONE_ID}`,
+                                                        Name: `${mock.ROOT_DOMAIN}.`
+                                                    },
+                                                    {
+                                                        Id: `/hostedzone/${mock.SUBDOMAIN_HOSTED_ZONE_ID}`,
+                                                        Name: `${mock.SUBDOMAIN}.`
+                                                    }
+                                                ]
+                                            }
+                                        );
+                                    }
+                                }
+                            );
+                        }
+                    }
+                ));
+                const lambda = new (require("../index.js"))(config);
+                lambda.handle(
+                    clone(message),
+                    {},
+                    (error, resp) =>
+                    {
+                        expect(error).toBe(undefined);
+                        expect(resp).toEqual(new errors.ServiceUnavailable());
+                        finish();
+                    }
+                );
+            }
+        );
+    });
+    describe("creates DNS TXT record for wildcard subdomain in longest matching root domain", () =>
+    {
+        it("if error, returns 503 Service Unavailable", done =>
+            {
+                const finish = countdown(done, 2);
+                const message = clone(UPDATE_CHALLENGE);
+                message.domain = WILDCARD_SUBDOMAIN;
+                const mock =
+                {
+                    finish,
+                    message,
+                    ROOT_DOMAIN,
+                    ROOT_HOSTED_ZONE_ID,
+                    SUBDOMAIN,
+                    SUBDOMAIN_HOSTED_ZONE_ID
+                };
+                jest.mock("aws-sdk", () => (
+                    {
+                        Route53: function()
+                        {
+                            return (
+                                {
+                                    changeResourceRecordSets(params, callback)
+                                    {
+                                        expect(params).toEqual(
+                                            {
+                                                ChangeBatch:
+                                                {
+                                                    Changes:
+                                                    [
+                                                        {
+                                                            Action: "UPSERT",
+                                                            ResourceRecordSet:
+                                                            {
+                                                                Name: `_acme-challenge.${mock.SUBDOMAIN}.`,
                                                                 ResourceRecords:
                                                                 [
                                                                     {
