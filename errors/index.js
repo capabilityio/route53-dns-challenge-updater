@@ -35,6 +35,26 @@ if (!("toJSON" in Error.prototype))
     );
 }
 
+class BadRequest extends Error
+{
+    constructor(message)
+    {
+        super(message);
+        this.statusCode = 400;
+        this.error = "Bad Request";
+    }
+}
+
+class NotFound extends Error
+{
+    constructor(message)
+    {
+        super(message);
+        this.statusCode = 404;
+        this.error = "Not Found";
+    }
+}
+
 class ServiceUnavailable extends Error
 {
     constructor()
@@ -47,5 +67,7 @@ class ServiceUnavailable extends Error
 
 module.exports =
 {
+    BadRequest,
+    NotFound,
     ServiceUnavailable
 };

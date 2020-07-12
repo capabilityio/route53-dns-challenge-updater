@@ -39,13 +39,7 @@ module.exports = function(message, context)
                 message: `Invalid message`
             }
         );
-        return self._end(
-            {
-                statusCode: 400,
-                error: "Bad Request",
-                message: `Invalid ${validationResult.error.details[0].path.join(".")}`
-            }
-        );
+        return self._end(new errors.BadRequest(`Invalid ${validationResult.error.details[0].path.join(".")}`));
     }
     const workflow = new events.EventEmitter();
     setImmediate(() => workflow.emit("start",
@@ -114,13 +108,7 @@ module.exports = function(message, context)
                                 }
                             }
                         );
-                        return self._end(
-                            {
-                                statusCode: 404,
-                                error: "Not Found",
-                                message: `Domain ${message.domain} not found`
-                            }
-                        );
+                        return self._end(new errors.NotFound(`Domain ${message.domain} not found`));
                     }
                     dataBag.hostedZones = dataBag.hostedZones.map(zone => Object.assign(zone,
                         {

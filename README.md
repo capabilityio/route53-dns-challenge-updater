@@ -13,6 +13,7 @@ AWS Route53 DNS challenge updater plugin for Certificate Manager Service.
   * [Tests](#tests)
   * [Documentation](#documentation)
     * [Updater.handle(message, context, callback)](#updaterhandlemessage-context-callback)
+    * [errors](#errors)
   * [Releases](#releases)
 
 ## Installation
@@ -84,6 +85,20 @@ npm test
   * `callback`: _Function_ `(error, resp) => {}` AWS Lambda callback.
 
 Retrieves AWS Route53 hosted zone id for the `domain`. Creates a `_acme-challenge.${domain}.` TXT record containing the `challenge`. Invokes `capabilities.challengeUpdated` on success, fails otherwise.
+
+### Errors
+
+#### BadRequest
+
+Inbound request message does not match schema.
+
+#### NotFound
+
+Domain to update challenge for not found.
+
+#### ServiceUnavailable
+
+The challenge updater is unavailable, please try again soon.
 
 ## Releases
 
