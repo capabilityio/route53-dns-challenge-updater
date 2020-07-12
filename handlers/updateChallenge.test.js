@@ -73,13 +73,7 @@ describe("UpdateChallenge", () =>
                             (error, resp) =>
                             {
                                 expect(error).toBe(undefined);
-                                expect(resp).toEqual(
-                                    {
-                                        statusCode: 400,
-                                        error: "Bad Request",
-                                        message: `Invalid ${prop}`
-                                    }
-                                );
+                                expect(resp).toEqual(new errors.BadRequest(`Invalid ${prop}`));
                                 done();
                             }
                         );
@@ -209,11 +203,9 @@ describe("UpdateChallenge", () =>
                     {
                         expect(error).toBe(undefined);
                         expect(resp).toEqual(
-                            {
-                                statusCode: 404,
-                                error: "Not Found",
-                                message: `Domain ${UPDATE_CHALLENGE.domain} not found`
-                            }
+                            new errors.NotFound(
+                                `Domain ${UPDATE_CHALLENGE.domain} not found`
+                            )
                         );
                         finish();
                     }
