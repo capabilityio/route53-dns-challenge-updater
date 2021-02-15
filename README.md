@@ -1,8 +1,6 @@
 # route53-dns-challenge-updater
 
-_Stability: 1 - [Experimental](https://github.com/tristanls/stability-index#stability-1---experimental)_
-
-[![NPM version](https://badge.fury.io/js/route53-dns-challenge-updater.svg)](http://npmjs.org/package/route53-dns-challenge-updater)
+_Stability: 0 - [Deprecated](https://github.com/tristanls/stability-index#stability-0---deprecated)_
 
 AWS Route53 DNS challenge updater plugin for Certificate Manager Service.
 
